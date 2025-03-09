@@ -13,14 +13,15 @@ export default class TasksController {
             }
 
             await TasksRepository.addTask(description);
-            res.status(200);
+            res.status(204).send();
 
         } catch (error: any) {
             console.error('Controller Error:', error.message);
             if (error instanceof CustomError) {
                 res.status(error.statusCode).json({ error: error.message, code: error.code });
+            } else {
+                res.status(500).json({ error: 'Internal Server Error' });
             }
-            res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 
@@ -30,8 +31,9 @@ export default class TasksController {
             if (!taskId) {
                 throw new CustomError('Task id is required', 'ID_REQUIRED', 400);
             }
-             await TasksRepository.completeTask(taskId);
-            res.status(200);
+            await TasksRepository.completeTask(taskId);
+            res.status(204).send();
+
         } catch (error: any) {
             if (error instanceof CustomError) {
                 console.error('Controller Error:', error.message);
@@ -39,9 +41,11 @@ export default class TasksController {
                     error: error.message,
                     code: error.code,
                 });
+            } else {
+                console.error('Unexpected Error:', error);
+                res.status(400).json({ error: error.message });
             }
-            console.error('Unexpected Error:', error);
-            res.status(400).json({ error: error.message });
+
         }
     }
 
@@ -55,10 +59,9 @@ export default class TasksController {
             console.error('Controller Error:', error.message);
             if (error instanceof CustomError) {
                 res.status(error.statusCode).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: error.message });
             }
-            res.status(500).json({ error: error.message });
         }
     }
-
-
 }

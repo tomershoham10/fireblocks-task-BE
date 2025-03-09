@@ -39,10 +39,6 @@ export default class TasksRepository {
         } catch (error: any) {
             console.error('Repository Error:', error.message);
 
-            if (error instanceof CustomError) {
-                throw error;
-            }
-
             throw new CustomError(`tasks repo - completeTask: ${error.message}`, 'TASK_COMPLETION_FAILED', 500);
         }
     }
@@ -62,7 +58,7 @@ export default class TasksRepository {
             console.error('Repository Error:', error.message);
 
             if (error instanceof CustomError) {
-                throw error; 
+                throw error;
             }
 
             throw new CustomError(`tasks repo - getAll: ${error.message}`, 'FETCH_TASKS_FAILED', 500);
