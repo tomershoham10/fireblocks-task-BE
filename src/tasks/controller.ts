@@ -2,24 +2,6 @@ import { Request, Response } from 'express';
 import TasksManager from './manager.js';
 
 export default class TasksController {
-    static async addTask(req: Request, res: Response) {
-        try {
-            const { description } = req.body;
-
-            const newTask = await TasksManager.addTask(description);
-
-            if (newTask) {
-                return res
-                    .status(201)
-                    .json({ message: 'Task created successfully', newTask });
-            } else {
-                throw new Error('Tasks controller create error.');
-            }
-        } catch (error: any) {
-            console.error('Controller Error:', error.message);
-            return res.status(500).json({ error: error.message });
-        }
-    }
 
     static async completeTask(req: Request, res: Response) {
         try {
@@ -37,6 +19,26 @@ export default class TasksController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    static async addTask(req: Request, res: Response): Promise<any> {
+        try {
+            const { description } = req.body;
+
+            const transactionHash = await TasksManager.addTask(description);
+
+            if (transactionHash) {
+                return res
+                    .status(201)
+                    .json({ message: 'Task created successfully', transactionHash });
+            } else {
+                throw new Error('Tasks controller create error.');
+            }
+        } catch (error: any) {
+            console.error('Controller Error:', error.message);
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
 
     static async getMany(_req: Request, res: Response) {
         try {

@@ -2,7 +2,7 @@ import TasksRepository from "./repository";
 
 export default class TasksManager {
 
-    static async addTask(description: any): Promise<any[]> {
+    static async addTask(description: string): Promise<any> {
         try {
             const newTask = await TasksRepository.addTask(description);
             return newTask;
@@ -12,7 +12,7 @@ export default class TasksManager {
         }
     }
 
-    static async completeTask(taskId: string): Promise<any[]> {
+    static async completeTask(taskId: string): Promise<boolean> {
         try {
             const tasks = await TasksRepository.completeTask(taskId);
             return tasks;
@@ -23,7 +23,7 @@ export default class TasksManager {
     }
 
 
-    static async getAll(): Promise<any[]> {
+    static async getAll(): Promise<any[] | null> {
         try {
             const tasks = await TasksRepository.getAll();
             return tasks;

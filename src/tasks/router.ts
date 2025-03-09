@@ -6,8 +6,7 @@ const TasksRouter = Router();
 TasksRouter.get('/', TasksController.getMany);
 
 TasksRouter
-.post('/:id/complete', TasksController.completeTask)
-.post('/', TasksController.addTask);
-
+    .post('/:id/complete', TasksController.completeTask)
+    .post('/', TasksController.addTask);
 
 export default TasksRouter;
