@@ -1,5 +1,10 @@
 # 📌 TODO List - Fireblock Task
 
+## Run the project (non-tech)
+
+1.  Run setup.bat file.
+2.  After the cmd is closed, run run_project.bat
+
 ## 🚀 Project Overview
 This project is a backend service for managing tasks via a RESTful API. It integrates with an Ethereum smart contract to store and manage tasks securely.
 
