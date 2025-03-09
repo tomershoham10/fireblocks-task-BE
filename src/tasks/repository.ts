@@ -1,78 +1,71 @@
 import { ethers } from 'ethers';
 import abi from '../utils/abi.json';
-import dotenv from 'dotenv';
-dotenv.config();
+import { ADRESS, PRIVATE_KEY, RPC_URL } from '../utils/config';
+import CustomError from '../utils/CostumError';
 
-const address = process.env.CONTRACT_ADDRESS;
-const rpcUrl = process.env.RPC_URL;
-const privateKey = process.env.PRIVATE_KEY;
-const provider: ethers.JsonRpcProvider = new ethers.JsonRpcProvider(rpcUrl);
+const provider: ethers.JsonRpcProvider = new ethers.JsonRpcProvider(RPC_URL);
 
 
 export default class TasksRepository {
-    static async addTask(description: string): Promise<string | null> {
+    static async addTask(description: string): Promise<void> {
         try {
-            if (!address || !privateKey) return null;
 
-            const wallet = new ethers.Wallet(privateKey, provider);
-            const contract = new ethers.Contract(address, abi, wallet);
-
-            if (!contract) {
-                throw new Error('Contract is null');
-            }
+            const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+            const contract = new ethers.Contract(ADRESS, abi, wallet);
 
             const tx = await contract.addTask(description);
 
             const receipt = await tx.wait();
-
             console.log(`Task added! Transaction Hash: ${receipt.hash}`);
-            return 'ok';
         } catch (error: any) {
             console.error('Repository Error:', error);
-            throw new Error(`tasks repo - addTask: ${error.message}`);
+            throw new CustomError(
+                `Failed to add task: ${error.message}`,
+                'TASK_ADDITION_FAILED',
+                500
+            );
         }
     }
 
-    static async completeTask(taskId: string): Promise<boolean> {
+    static async completeTask(taskId: string): Promise<void> {
         try {
-            if (!address || !privateKey) return false;
-
-            const wallet = new ethers.Wallet(privateKey, provider);
-            const contract = new ethers.Contract(address, abi, wallet);
-
-            if (!contract) {
-                throw new Error('Contract is null');
-            }
+            const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+            const contract = new ethers.Contract(ADRESS, abi, wallet);
 
             const tx = await contract.completeTask(taskId);
 
             const receipt = await tx.wait();
             console.log(`Task completed! Transaction Hash: ${receipt.hash}`);
-            return true;
         } catch (error: any) {
             console.error('Repository Error:', error.message);
-            throw new Error(`tasks repo - completeTask: ${error}`);
+
+            if (error instanceof CustomError) {
+                throw error;
+            }
+
+            throw new CustomError(`tasks repo - completeTask: ${error.message}`, 'TASK_COMPLETION_FAILED', 500);
         }
     }
 
-    static async getAll(): Promise<any[] | null> {
+    static async getAll(): Promise<Task[]> {
         try {
-            if (!address) return null;
-            const contract = new ethers.Contract(address, abi, provider);
-            if (!contract) return [];
-
+            const contract = new ethers.Contract(ADRESS, abi, provider);
             const tasks = await contract.getTasks();
-            console.log('get all tasks:', tasks);
 
             const formattedTasks = tasks.map((task: any) => ({
-                id: task.id.toString(),
+                id: Number(task.id),
                 description: task.description,
                 completed: task.completed
             }));
             return formattedTasks;
         } catch (error: any) {
             console.error('Repository Error:', error.message);
-            throw new Error(`tasks repo - getAll: ${error}`);
+
+            if (error instanceof CustomError) {
+                throw error; 
+            }
+
+            throw new CustomError(`tasks repo - getAll: ${error.message}`, 'FETCH_TASKS_FAILED', 500);
         }
     }
 }
